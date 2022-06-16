@@ -138,6 +138,7 @@ const AppStylesheet = StyleSheet.create({
     borderBottomColor: 'black',
     borderBottomWidth: 2,
   },
+
   dataview: {
     color: "#f44336",
     fontSize: 25,
