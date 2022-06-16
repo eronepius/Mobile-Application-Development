@@ -140,8 +140,8 @@ const AppStylesheet = StyleSheet.create({
   },
 
   dataview: {
-    color: "#f44336",
-    fontSize: 25,
+    color: "#4f4c4a",
+    fontSize: 20,
     fontWeight: 'bold'
   }
 })
