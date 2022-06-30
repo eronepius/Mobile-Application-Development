@@ -1,14 +1,16 @@
 import React from 'react'
 import { View, StyleSheet, Text, TextInput, Button } from "react-native"
-// import { Calendar } from 'react-native-calendario';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 import { useState } from "react";
+import email from 'react-native-email'
 
 
 
 const App = () => {
-  let [day, setDay] = useState(null)
+  let [day, setDay] = useState('2022-06-23')
+  let [mainscreen, setMainScreen] = useState(true)
   let [event, setEvent] = useState("");
+  let [sender, setSender] = useState("");
   let [myevents, setMyEvents] = useState([]);
 
   const buttonPress = () => {
@@ -17,16 +19,28 @@ const App = () => {
       "Date": day['dateString']
     }
     setMyEvents([...myevents, d])
-    setDay(null)
     console.log(myevents)
+    const to = sender // string or array of email addresses
+    email(to, {
+      // Optional additional arguments
+      'cc': ['eronepius@gmail.com'], // string or array of email addresses
+      'subject': `Invited for the event ${event}`,
+      'body': `Here is a New Event ${event}`,
+      'checkCanOpen': false // Call Linking.canOpenURL prior to Linking.openURL
+    })
+    setMainScreen(true)
   }
 
   const onChangeOfText = (e) => {
     setEvent(e)
   }
 
+  const onChangeOfEmail = (e) => {
+    setSender(e)
+  }
 
-  if (day === null) {
+
+  if (mainscreen === true) {
     return (
       <View>
         <View style={AppStylesheet.appview}>
@@ -36,15 +50,15 @@ const App = () => {
 
           <Calendar
             // Initially visible month. Default = now
-            initialDate={'2022-06-16'}
+            initialDate={day}
             // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
             minDate={undefined}
             // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
             maxDate={undefined}
             // Handler which gets executed on day press. Default = undefined
             onDayPress={day => {
-              console.log('selected day', day);
               setDay(day)
+              setMainScreen(false)
             }}
             // Handler which gets executed on day long press. Default = undefined
             onDayLongPress={day => {
@@ -68,7 +82,7 @@ const App = () => {
             // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday
             firstDay={1}
             // Hide day names. Default = false
-            hideDayNames={true}
+            hideDayNames={false}
             // Show week numbers to the left. Default = false
             showWeekNumbers={true}
             // Handler which gets executed when press arrow icon left. It receive a callback can go back month
@@ -90,21 +104,26 @@ const App = () => {
           />
         </View>
         <View >
-          {myevents.map((data, i) => {
-            return (
-              <View key={i} style={AppStylesheet.displayview}>
-                <Text style={AppStylesheet.dataview}>Date: {data['Date']}</Text>
-                <Text style={AppStylesheet.dataview}>Event: {data['Event']}</Text>
-              </View>
-            )
-          })}
+          {
+            myevents.map((data, i) => {
+              console.log(day)
+              if (data["Date"] === day['dateString']) {
+                return (
+                  <View key={i} style={AppStylesheet.displayview}>
+                    <Text style={AppStylesheet.dataview}>Date: {data['Date']}</Text>
+                    <Text style={AppStylesheet.dataview}>Event: {data['Event']}</Text>
+                  </View>
+                )
+              }
+            })}
         </View>
       </View>
     );
   } else {
     return (
       <>
-        <TextInput onChangeText={e => onChangeOfText(e)} placeholder="Event Name" />
+        <TextInput style={AppStylesheet.textinputstyle} onChangeText={e => onChangeOfText(e)} placeholder="Event Name" />
+        <TextInput textContentType="emailAddress" style={AppStylesheet.textinputstyle} onChangeText={e => onChangeOfEmail(e)} placeholder="Email Address" />
         <Button title="Add to Calender" onPress={e => buttonPress(e)} />
       </>
     )
@@ -143,6 +162,11 @@ const AppStylesheet = StyleSheet.create({
     color: "#4f4c4a",
     fontSize: 20,
     fontWeight: 'bold'
+  },
+
+  textinputstyle: {
+    color: '#000000',
+    fontSize: 20,
   }
 })
 
